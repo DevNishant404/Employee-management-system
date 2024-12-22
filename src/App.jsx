@@ -7,29 +7,32 @@ import { getLocalStorage, setLocalStorage } from "./utils/LocalStorage";
 import { use } from "react";
 
 function App() {
+  useEffect(() => {
+    setLocalStorage();
+  }, []);
 
   const [user, setUser] = useState(null);
   const [loggedInuserData,setloggedInuserData]=useState(null)
-  const authData = useContext(AuthContext);
+  const[userData,setUserData]=useContext(AuthContext)
 
   useEffect(()=>{
-    if(authData){
+    if(userData){
       const loggedInUser=localStorage.getItem("loggedInUser")
       if(loggedInUser){
         const userData=JSON.parse(loggedInUser)
-        setUser(UserData.role)
+        setUser(userData.role)
         setloggedInuserData(userData.data)
       }
     }
   },[])
 
-  console.log("AuthContext data:", authData); 
+  console.log("AuthContext data:", userData); 
   const handleLogin = (email, password) => {
     if (email === "admin@example.com" && password === "123") {
       setUser("admin");
       localStorage.setItem("loggedInuser",JSON.stringify({role:'admin'}))
-    } else if (authData) {
-      const employee=authData.employees.find((e)=>email==e.email && e.password==password)
+    } else if (userData) {
+      const employee=userData.find((e)=>email==e.email && e.password==password)
       if(employee){
         setUser("employee");
         setloggedInuserData(employee)
@@ -44,7 +47,7 @@ function App() {
   return (
     <>
       {!user ? <Login handleLogin={handleLogin} /> : ""}
-      {user === "admin" ? (<AdminDashboard />) : user === "employee" ? (<EmployeeDashboard data={loggedInuserData} />
+      {user === "admin" ? (<AdminDashboard  changeUser={setUser}/>) : user === "employee" ? (<EmployeeDashboard   changeUser={setUser} data={loggedInuserData} />
 ) : null}
 
     </>
